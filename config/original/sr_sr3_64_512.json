@@ -1,8 +1,8 @@
 {
-    "name": "sr_ffhq",
+    "name": "distributed_high_sr_ffhq",
     "phase": "train", // train or val
     "gpu_ids": [
-        0
+        1
     ],
     "path": { //set the path
         "log": "logs",
@@ -10,17 +10,17 @@
         "results": "results",
         "checkpoint": "checkpoint",
         "resume_state": null
-        // "resume_state": "experiments/sr_ffhq_210806_204158/checkpoint/I640000_E37" //pretrain model or training state
+        // "resume_state": "experiments/distributed_high_sr_ffhq_210901_121212/checkpoint/I830000_E32" //pretrain model or training state
     },
     "datasets": {
         "train": {
             "name": "FFHQ",
             "mode": "HR", // whether need LR img
-            "dataroot": "dataset/ffhq_16_128",
-            "datatype": "lmdb", //lmdb or img, path of img files
-            "l_resolution": 16, // low resolution need to super_resolution
-            "r_resolution": 128, // high resolution
-            "batch_size": 4,
+            "dataroot": "dataset/ffhq_64_512",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 64, // low resolution need to super_resolution
+            "r_resolution": 512, // high resolution
+            "batch_size": 2,
             "num_workers": 8,
             "use_shuffle": true,
             "data_len": -1 // -1 represents all data used in train
@@ -28,11 +28,11 @@
         "val": {
             "name": "CelebaHQ",
             "mode": "LRHR",
-            "dataroot": "dataset/celebahq_16_128",
-            "datatype": "lmdb", //lmdb or img, path of img files
-            "l_resolution": 16,
-            "r_resolution": 128,
-            "data_len": 50 // data length in validation 
+            "dataroot": "dataset/celebahq_64_512",
+            "datatype": "img", //lmdb or img, path of img files
+            "l_resolution": 64,
+            "r_resolution": 512,
+            "data_len": 50
         }
     },
     "model": {
@@ -42,18 +42,21 @@
             "in_channel": 6,
             "out_channel": 3,
             "inner_channel": 64,
+            "norm_groups": 16,
             "channel_multiplier": [
                 1,
                 2,
                 4,
                 8,
-                8
-            ],
-            "attn_res": [
+                // 8,
+                // 16,
                 16
             ],
-            "res_blocks": 2,
-            "dropout": 0.2
+            "attn_res": [
+                // 16
+            ],
+            "res_blocks": 1,
+            "dropout": 0
         },
         "beta_schedule": { // use munual beta_schedule for acceleration
             "train": {
@@ -70,7 +73,7 @@
             }
         },
         "diffusion": {
-            "image_size": 128,
+            "image_size": 512,
             "channels": 3, //sample channel
             "conditional": true // unconditional generation or unconditional generation(super_resolution)
         }
@@ -79,10 +82,10 @@
         "n_iter": 1000000,
         "val_freq": 1e4,
         "save_checkpoint_freq": 1e4,
-        "print_freq": 200,
+        "print_freq": 50,
         "optimizer": {
             "type": "adam",
-            "lr": 1e-4
+            "lr": 3e-6
         },
         "ema_scheduler": { // not used now
             "step_start_ema": 5000,
@@ -91,6 +94,6 @@
         }
     },
     "wandb": {
-        "project": "sr_ffhq"
+        "project": "distributed_high_sr_ffhq"
     }
 }
